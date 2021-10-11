@@ -1,0 +1,39 @@
+-- =========================================================================
+INSERT INTO public.au_locations(
+	"CITY", "LAT", "LON", "COUNTRY", "ISO2", "ADMIN_NAME", "CAPITAL", "MERGEDCITY")
+
+SELECT "CITY", "LAT", "LON", "COUNTRY", "ISO2", "ADMIN_NAME", "CAPITAL", REPLACE ("CITY", ' ', '')
+FROM public.au_locations_raw
+
+
+-- =========================================================================
+INSERT INTO public.aus_weather(
+"Date", "Location", "MinTemp", "MaxTemp", "Rainfall", "Humidity9am", "Humidity3pm", "Temp9am", "Temp3pm")
+
+SELECT "Date", "Location",
+		CAST("MinTemp" AS numeric), 
+		CAST("MaxTemp" AS numeric), 
+		CAST("Rainfall" AS numeric), 
+		CAST("Humidity9am" AS integer), 
+		CAST("Humidity3pm" AS integer), 
+		CAST("Temp9am" AS numeric),
+		CAST("Temp3pm" AS numeric)
+FROM public.aus_weather_raw
+
+WHERE	"MinTemp" 		<> 'NA'
+AND    	"MaxTemp" 		<> 'NA'
+AND    	"Rainfall" 		<> 'NA'
+AND    	"Humidity9am" 	<> 'NA'
+AND    	"Humidity3pm" 	<> 'NA'
+AND    	"Temp9am" 		<> 'NA'
+AND    	"Temp3pm" 		<> 'NA';
+
+
+-- ============================================================================
+SELECT 	"Date", "CITY_ID", "Location", "MinTemp", "MaxTemp", "Rainfall", "Humidity9am", "Humidity3pm", "Temp9am", "Temp3pm"
+FROM 	public.aus_weather as w
+	
+JOIN 	public.au_locations as l
+ON 		w."Location" =  l."MERGEDCITY"
+
+ORDER 	BY "Date", "CITY_ID"
